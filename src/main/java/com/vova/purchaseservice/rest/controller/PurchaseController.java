@@ -54,10 +54,10 @@ public class PurchaseController {
     @PostMapping("/{id}/edit")
     @ResponseStatus(HttpStatus.OK)
     public PurchaseItem editPurchase(@NotNull(message = "{validation.id-purchase.nullable}")
-                                     @PathVariable("id") int id,
+                                     @PathVariable("id") int purchaseId,
                                      @Valid EditPurchaseRequest request) {
         String login = UserService.getLoginFromSecurityContext();
-        Purchase originalPurchase = purchaseService.getPurchaseByIdAndLogin(id, login);
+        Purchase originalPurchase = purchaseService.getPurchaseByIdAndLogin(purchaseId, login);
         Purchase purchase = request.applyChanges(originalPurchase);
         Purchase changedPurchase = purchaseService.edit(purchase);
         return PurchaseItem.fromDbPurchase(changedPurchase);
@@ -66,9 +66,9 @@ public class PurchaseController {
     @DeleteMapping("/{id}/delete")
     @ResponseStatus(HttpStatus.OK)
     public Map<String, Integer> deletePurchase(@NotNull(message = "{validation.id-purchase.nullable}")
-                                               @PathVariable("id") int id) {
-        purchaseService.deletePurchase(id, UserService.getLoginFromSecurityContext());
-        return Collections.singletonMap("deleted", id);
+                                               @PathVariable("id") int purchaseId) {
+        purchaseService.deletePurchase(purchaseId, UserService.getLoginFromSecurityContext());
+        return Collections.singletonMap("deleted", purchaseId);
     }
 
 

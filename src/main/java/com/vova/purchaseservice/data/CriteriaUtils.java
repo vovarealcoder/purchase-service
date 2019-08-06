@@ -8,22 +8,22 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 final class CriteriaUtils {
-    private static final FastDateFormat fdf = FastDateFormat.getInstance("dd-MM-yyyy");
+    private static final FastDateFormat formatter = FastDateFormat.getInstance("dd-MM-yyyy");
 
     private CriteriaUtils() {
     }
 
     static Predicate stringPredicate(CriteriaBuilder cb, Expression<String> attribute, String value) {
-        Matcher matcher = parseRawCondition(value);
+        Matcher matcher = parseQueryCondition(value);
         String operator = matcher.group(1);
         String pattern = matcher.group(2);
         switch (operator) {
@@ -36,7 +36,7 @@ final class CriteriaUtils {
         }
     }
 
-    private static Matcher parseRawCondition(String value) {
+    private static Matcher parseQueryCondition(String value) {
         Matcher matcher = Pattern.compile("^\\[(\\w+)](.*)").matcher(value);
         if (!matcher.find() || matcher.groupCount() != 2) {
             throw new InvalidCriteriaException("invalid condition format");
@@ -45,10 +45,10 @@ final class CriteriaUtils {
     }
 
     static Predicate integerPredicate(CriteriaBuilder cb, Expression<Integer> attribute, String value) {
-        Matcher matcher = parseRawCondition(value);
+        Matcher matcher = parseQueryCondition(value);
         String operator = matcher.group(1);
-        Integer[] ints = parseIntListToArray(matcher.group(2));
-        return comparePredicate(cb, operator, attribute, ints);
+        Integer[] candidates = parseIntList(matcher.group(2)).toArray(Integer[]::new);
+        return comparePredicate(cb, operator, attribute, candidates);
 
     }
 
@@ -75,12 +75,12 @@ final class CriteriaUtils {
     }
 
     static Predicate datePredicate(CriteriaBuilder cb, Expression<Date> attribute, String value) {
-        Matcher matcher = parseRawCondition(value);
+        Matcher matcher = parseQueryCondition(value);
         String operator = matcher.group(1);
         String dates = matcher.group(2);
         Date[] dateArray = Arrays.stream(dates.split(",")).map(String::trim).map(e -> {
             try {
-                return fdf.parse(e);
+                return formatter.parse(e);
             } catch (ParseException e1) {
                 throw new InvalidCriteriaException(e);
             }
@@ -104,7 +104,7 @@ final class CriteriaUtils {
         }
     }
 
-    static Set<Integer> parseIntList(String list) {
+    static Stream<Integer> parseIntList(String list) {
         if (StringUtils.trimToNull(list) == null) {
             throw new InvalidCriteriaException("list is empty");
         }
@@ -112,14 +112,19 @@ final class CriteriaUtils {
             return Arrays.stream(list.trim().split(","))
                     .map(String::trim)
                     .filter(StringUtils::isNotBlank)
-                    .map(Integer::parseInt)
-                    .collect(Collectors.toSet());
+                    .map(Integer::parseInt);
         } catch (NumberFormatException e) {
             throw new InvalidCriteriaException(e);
         }
     }
 
-    static <T extends Enum<T>> Set<T> parsePurchaseStatusList(String list, Class<T> clazz) {
+    /**
+     * Разбор списка emum-ов через запятую
+     * @param list список emum-ов через запятую
+     * @param clazz класс emum-а
+     * @return
+     */
+    static <T extends Enum<T>> Set<T> parseEnumList(String list, Class<T> clazz) {
         if (StringUtils.trimToNull(list) == null) {
             throw new InvalidCriteriaException("list is empty");
         }
@@ -133,9 +138,5 @@ final class CriteriaUtils {
         } catch (IllegalArgumentException e) {
             throw new InvalidCriteriaException(e);
         }
-    }
-
-    private static Integer[] parseIntListToArray(String list) {
-        return new ArrayList<>(parseIntList(list)).toArray(new Integer[0]);
     }
 }

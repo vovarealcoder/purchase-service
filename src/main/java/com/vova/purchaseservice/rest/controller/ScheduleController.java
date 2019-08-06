@@ -53,10 +53,10 @@ public class ScheduleController {
     @PostMapping("/{id}/edit")
     @ResponseStatus(HttpStatus.OK)
     public ScheduleItem editSchedule(@NotNull(message = "{validation.id-schedule.nullable}")
-                                     @PathVariable("id") int id,
+                                     @PathVariable("id") int scheduleId,
                                      @Valid EditScheduleRequest request) {
         String login = UserService.getLoginFromSecurityContext();
-        Schedule originalPurchase = scheduleService.getByIdAndLogin(id, login);
+        Schedule originalPurchase = scheduleService.getByIdAndLogin(scheduleId, login);
         Schedule purchase = request.applyChanges(originalPurchase);
         Schedule changedPurchase = scheduleService.change(purchase);
         return ScheduleItem.fromDbSchedule(changedPurchase);
@@ -65,9 +65,9 @@ public class ScheduleController {
     @DeleteMapping("/{id}/delete")
     @ResponseStatus(HttpStatus.OK)
     public Map<String, Integer> deleteSchedule(@NotNull(message = "{validation.id-purchase.nullable}")
-                                               @PathVariable("id") int id) {
-        scheduleService.deleteSchedule(id, UserService.getLoginFromSecurityContext());
-        return Collections.singletonMap("deleted", id);
+                                               @PathVariable("id") int scheduleId) {
+        scheduleService.deleteSchedule(scheduleId, UserService.getLoginFromSecurityContext());
+        return Collections.singletonMap("deleted", scheduleId);
     }
 
 

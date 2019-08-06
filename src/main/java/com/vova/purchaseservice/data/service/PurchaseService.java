@@ -20,11 +20,6 @@ public class PurchaseService {
     private PurchaseRepository purchaseRepository;
     private UserRepository userRepository;
 
-    @Autowired
-    public void setPurchaseRepository(PurchaseRepository purchaseRepository) {
-        this.purchaseRepository = purchaseRepository;
-    }
-
     public Page<Purchase> getPurchases(Pageable pageable, String login) {
         return purchaseRepository.getByUser_Login(login, pageable);
     }
@@ -56,5 +51,10 @@ public class PurchaseService {
     @Autowired
     public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    @Autowired
+    public void setPurchaseRepository(PurchaseRepository purchaseRepository) {
+        this.purchaseRepository = purchaseRepository;
     }
 }

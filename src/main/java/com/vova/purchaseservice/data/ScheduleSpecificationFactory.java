@@ -13,6 +13,7 @@ import javax.persistence.criteria.Root;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public final class ScheduleSpecificationFactory {
     private ScheduleSpecificationFactory() {
@@ -36,7 +37,8 @@ public final class ScheduleSpecificationFactory {
                     predicates.add(root.get(Schedule_.idSchedule).in(CriteriaUtils.parseIntList(entry.getValue())));
                     break;
                 case "period":
-                    predicates.add(root.get(Schedule_.period).in(CriteriaUtils.parsePurchaseStatusList(entry.getValue(), Periodic.class)));
+                    Set<Periodic> periodCandidates = CriteriaUtils.parseEnumList(entry.getValue(), Periodic.class);
+                    predicates.add(root.get(Schedule_.period).in(periodCandidates));
                     break;
                 case "startDate":
                     predicates.add(CriteriaUtils.datePredicate(cb, root.get(Schedule_.startDate), entry.getValue()));
@@ -57,7 +59,8 @@ public final class ScheduleSpecificationFactory {
                     predicates.add(CriteriaUtils.integerPredicate(cb, root.get(Schedule_.planPrice), entry.getValue()));
                     break;
                 case "status":
-                    predicates.add(root.get(Schedule_.status).in(CriteriaUtils.parsePurchaseStatusList(entry.getValue(), ScheduleStatus.class)));
+                    Set<ScheduleStatus> scheduleCandidates = CriteriaUtils.parseEnumList(entry.getValue(), ScheduleStatus.class);
+                    predicates.add(root.get(Schedule_.status).in(scheduleCandidates));
                     break;
                 case "count":
                     predicates.add(CriteriaUtils.integerPredicate(cb, root.get(Schedule_.count), entry.getValue()));

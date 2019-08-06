@@ -1,12 +1,16 @@
 package com.vova.purchaseservice.data.service;
 
 import com.vova.purchaseservice.data.ScheduleSpecificationFactory;
+import com.vova.purchaseservice.data.crud.PurchaseRepository;
 import com.vova.purchaseservice.data.crud.ScheduleRepository;
 import com.vova.purchaseservice.data.crud.UserRepository;
+import com.vova.purchaseservice.data.model.Purchase;
 import com.vova.purchaseservice.data.model.Schedule;
 import com.vova.purchaseservice.data.model.User;
+import com.vova.purchaseservice.data.model.enums.PurchaseStatus;
 import com.vova.purchaseservice.ex.PurchaseNotFoundException;
 import com.vova.purchaseservice.ex.UserNotFoundException;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,12 +18,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
 @Service
 public class ScheduleService {
     private ScheduleRepository scheduleRepository;
+    private PurchaseRepository purchaseRepository;
     private UserRepository userRepository;
 
     public Schedule create(Schedule schedule) {
@@ -53,13 +59,48 @@ public class ScheduleService {
     @Transactional
     @Scheduled(fixedDelay = 60000L)
     public void schedulePurchases() {
-        scheduleRepository.findAllOrderByIdSchedule().forEach(e -> {
-            Date lastPurchase = e.getLastPurchase();
-            switch (e.getPeriod()) {
+        scheduleRepository.streamAllSchedules().forEach(it -> {
+            Date lastPurchase = it.getLastPurchase();
+            Date now = new Date();
+            Date future;
+            switch (it.getPeriod()) {
                 case DAY:
-                    //todo здесь написать создание
+                    future = DateUtils.addDays(lastPurchase, 1);
+                    break;
+                case WEEK:
+                    future = DateUtils.addWeeks(lastPurchase, 1);
+                    break;
+                case MONTH:
+                    future = DateUtils.addMonths(lastPurchase, 1);
+                    break;
+                case KVARTAL:
+                    future = DateUtils.addMonths(lastPurchase, 3);
+                    break;
+                case YEAR:
+                    future = DateUtils.addYears(lastPurchase, 1);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Illegal type of periodic");
             }
+            createPurchase(it, now, future);
         });
+    }
+
+    private void createPurchase(Schedule schedule, Date now, Date future) {
+        Date futureDate = DateUtils.truncate(future, Calendar.DAY_OF_MONTH);
+        Date nowDate = DateUtils.truncate(now, Calendar.DAY_OF_MONTH);
+        if (futureDate.before(nowDate) || futureDate.equals(nowDate)) {
+            Purchase purchase = new Purchase();
+            purchase.setCount(schedule.getCount());
+            purchase.setComment(schedule.getComment());
+            purchase.setPlanPrice(schedule.getPlanPrice());
+            purchase.setPlanDate(now);
+            purchase.setName(schedule.getName());
+            purchase.setStatus(PurchaseStatus.NEW);
+            purchaseRepository.save(purchase);
+            schedule.setLastPurchase(now);
+            scheduleRepository.save(schedule);
+        }
     }
 
     @Autowired
@@ -70,5 +111,10 @@ public class ScheduleService {
     @Autowired
     public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    @Autowired
+    public void setPurchaseRepository(PurchaseRepository purchaseRepository) {
+        this.purchaseRepository = purchaseRepository;
     }
 }

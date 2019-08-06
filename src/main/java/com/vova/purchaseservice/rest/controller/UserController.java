@@ -16,8 +16,6 @@ import javax.validation.Valid;
 @RequestMapping(path = "/user/")
 public class UserController {
 
-
-    //todo сервис, который будет крутиться и проверять периодичность
     //todo тесты
     //todo логирование
     //todo кэш попыток входа https://www.baeldung.com/spring-security-block-brute-force-authentication-attempts

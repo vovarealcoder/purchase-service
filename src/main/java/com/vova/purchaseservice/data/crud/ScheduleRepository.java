@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -14,6 +15,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer>, Jp
 
     Optional<Schedule> getScheduleByUser_LoginAndIdSchedule(String login, int idSchedule);
 
-    Stream<Schedule> findAllOrderByIdSchedule();
+    @Query("select s from Schedule s")
+    Stream<Schedule> streamAllSchedules();
 
 }

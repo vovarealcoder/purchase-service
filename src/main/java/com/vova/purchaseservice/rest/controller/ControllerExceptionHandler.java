@@ -1,5 +1,6 @@
 package com.vova.purchaseservice.rest.controller;
 
+import com.vova.purchaseservice.ex.InvalidCriteriaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -11,11 +12,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,5 +85,16 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     @Autowired
     public void setMessageSource(MessageSource messageSource) {
         this.messageSource = messageSource;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidCriteriaException.class)
+    public ResponseEntity<Object> handleConflict(InvalidCriteriaException ex, HttpServletRequest req) {
+        Map<String, Object> bodyMap = new LinkedHashMap<>();
+        bodyMap.put("timestamp", new Date());
+        bodyMap.put("status", HttpStatus.BAD_REQUEST.value());
+        List<String> errors = Collections.singletonList(messageSource.getMessage("error.invalid-criteria", new String[]{ex.getMessage()}, req.getLocale()));
+        bodyMap.put("errors", errors);
+        return new ResponseEntity<>(bodyMap, HttpStatus.BAD_REQUEST);
     }
 }

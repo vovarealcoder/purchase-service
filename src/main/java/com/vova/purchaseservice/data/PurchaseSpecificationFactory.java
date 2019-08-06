@@ -12,6 +12,8 @@ import javax.persistence.criteria.Root;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class PurchaseSpecificationFactory {
 
@@ -34,7 +36,8 @@ public final class PurchaseSpecificationFactory {
         for (Map.Entry<String, String> entry : queryStringConditions.entrySet()) {
             switch (entry.getKey()) {
                 case "idPurchase":
-                    predicates.add(root.get(Purchase_.idPurchase).in(CriteriaUtils.parseIntList(entry.getValue())));
+                    Set<Integer> values = CriteriaUtils.parseIntList(entry.getValue()).collect(Collectors.toSet());
+                    predicates.add(root.get(Purchase_.idPurchase).in(values));
                     break;
                 case "purchased":
                     predicates.add(CriteriaUtils.datePredicate(cb, root.get(Purchase_.purchased), entry.getValue()));
@@ -58,7 +61,7 @@ public final class PurchaseSpecificationFactory {
                     predicates.add(CriteriaUtils.integerPredicate(cb, root.get(Purchase_.factPrice), entry.getValue()));
                     break;
                 case "status":
-                    predicates.add(root.get(Purchase_.status).in(CriteriaUtils.parsePurchaseStatusList(entry.getValue(), PurchaseStatus.class)));
+                    predicates.add(root.get(Purchase_.status).in(CriteriaUtils.parseEnumList(entry.getValue(), PurchaseStatus.class)));
                     break;
                 case "count":
                     predicates.add(CriteriaUtils.integerPredicate(cb, root.get(Purchase_.count), entry.getValue()));

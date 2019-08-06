@@ -2,7 +2,7 @@ package com.vova.purchaseservice.data.model.enums;
 
 public enum Periodic {
     DAY(1), WEEK(2),
-    MONTH(3), DECADE(4), YEAR(5);
+    MONTH(3), KVARTAL(4), YEAR(5);
 
     private final int code;
 
