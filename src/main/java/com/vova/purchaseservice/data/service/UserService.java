@@ -12,10 +12,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
+@Transactional
 public class UserService {
 
     private PasswordEncoder passwordEncoder;
@@ -32,6 +34,7 @@ public class UserService {
         return authorization.getUsername();
     }
 
+    @Transactional
     public User registerUser(String login, String password, String name) {
         if (userRepository.findByLogin(login).isPresent()) {
             throw new RegisterUserAlreadyExistsException(login);
@@ -43,10 +46,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public User getUserByLogin(String login) {
         return userRepository.findByLogin(login).orElseThrow(() -> new UserNotFoundException(login));
     }
 
+    @Transactional
     public User editUser(String login, String password, String name) {
         User user = userRepository.findByLogin(login).orElseThrow(() -> new UserNotFoundException(login));
         user.setPassword(passwordEncoder.encode(password));
@@ -54,6 +59,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public User info(String login) {
         return userRepository.findByLogin(login).orElseThrow(() -> new UserNotFoundException(login));
     }

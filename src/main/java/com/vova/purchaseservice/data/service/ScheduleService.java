@@ -34,28 +34,32 @@ public class ScheduleService {
     private PurchaseRepository purchaseRepository;
     private UserRepository userRepository;
 
+    @Transactional
     public Schedule create(Schedule schedule) {
         return scheduleRepository.save(schedule);
     }
-
+    @Transactional(readOnly = true)
     public Schedule getByIdAndLogin(int idSchedule, String login) {
         return scheduleRepository.getScheduleByUser_LoginAndIdSchedule(login, idSchedule)
                 .orElseThrow(() -> new ScheduleNotFoundException(login, idSchedule));
     }
 
+    @Transactional
     public Schedule change(Schedule schedule) {
         return scheduleRepository.save(schedule);
     }
-
+    @Transactional(readOnly = true)
     public Page<Schedule> getSchedules(Pageable pageable, String login) {
         return scheduleRepository.getAllByUser_Login(login, pageable);
     }
 
+    @Transactional(readOnly = true)
     public Page<Schedule> filter(Pageable pageable, String login, Map<String, String> query) {
         User user = userRepository.findByLogin(login).orElseThrow(() -> new UserNotFoundException(login));
         return scheduleRepository.findAll(ScheduleSpecificationFactory.createFromGetQuery(query, user), pageable);
     }
 
+    @Transactional
     public void deleteSchedule(int idSchedule, String login) {
         Schedule schedule = scheduleRepository.getScheduleByUser_LoginAndIdSchedule(login, idSchedule)
                 .orElseThrow(() -> new PurchaseNotFoundException(idSchedule, login));
@@ -63,7 +67,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    @Scheduled(fixedDelay = 60000L)
+    @Scheduled(fixedDelay = 60000L)//todo в режиме отладки 1 минута, заменить на крон
     public void schedulePurchases() {
         logger.log(Level.INFO, "starting generate purchases...");
         scheduleRepository.streamAllSchedules().forEach(it -> {
