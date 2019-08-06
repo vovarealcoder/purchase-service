@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PurchaseItem {
     private int idPurchase;
     private Date purchased;

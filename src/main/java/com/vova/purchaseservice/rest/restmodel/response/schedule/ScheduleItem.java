@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ScheduleItem {
     private int idSchedule;
     private Date created;
@@ -26,16 +25,16 @@ public class ScheduleItem {
 
     public static ScheduleItem fromDbSchedule(Schedule schedule) {
         ScheduleItem scheduleResponse = new ScheduleItem();
-        schedule.setIdSchedule(schedule.getIdSchedule());
-        schedule.setCreated(schedule.getCreated());
-        schedule.setName(schedule.getName());
-        schedule.setComment(schedule.getComment());
-        schedule.setPlanPrice(schedule.getPlanPrice());
-        schedule.setPeriod(schedule.getPeriod());
-        schedule.setStartDate(schedule.getStartDate());
-        schedule.setStatus(schedule.getStatus());
-        schedule.setLastPurchase(schedule.getLastPurchase());
-        schedule.setCount(schedule.getCount());
+        scheduleResponse.setIdSchedule(schedule.getIdSchedule());
+        scheduleResponse.setCreated(schedule.getCreated());
+        scheduleResponse.setName(schedule.getName());
+        scheduleResponse.setComment(schedule.getComment());
+        scheduleResponse.setPlanPrice(schedule.getPlanPrice());
+        scheduleResponse.setPeriod(schedule.getPeriod());
+        scheduleResponse.setStartDate(schedule.getStartDate());
+        scheduleResponse.setStatus(schedule.getStatus());
+        scheduleResponse.setLastPurchase(schedule.getLastPurchase());
+        scheduleResponse.setCount(schedule.getCount());
         return scheduleResponse;
     }
 

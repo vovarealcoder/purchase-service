@@ -18,8 +18,6 @@ public class UserController {
 
     //todo тесты
     //todo логирование
-    //todo кэш попыток входа https://www.baeldung.com/spring-security-block-brute-force-authentication-attempts
-    //todo обработка исключений в контроллер адвайсе
 
     private final UserService userService;
 

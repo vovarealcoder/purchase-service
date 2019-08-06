@@ -93,6 +93,20 @@ public class EditPurchaseRequest {
     }
 
 
+    @Override
+    public String toString() {
+        return "EditPurchaseRequest{" +
+                "purchased=" + purchased +
+                ", factPrice=" + factPrice +
+                ", status=" + status +
+                ", planDate=" + planDate +
+                ", name='" + name + '\'' +
+                ", comment='" + comment + '\'' +
+                ", planPrice=" + planPrice +
+                ", count=" + count +
+                '}';
+    }
+
     public Purchase applyChanges(Purchase purchase) {
         Purchase newPurchase = new Purchase();
         newPurchase.setName(Optional.ofNullable(this.name).orElse(purchase.getName()));
@@ -103,7 +117,7 @@ public class EditPurchaseRequest {
         newPurchase.setPurchased(Optional.ofNullable(this.purchased).orElse(purchase.getPurchased()));
         newPurchase.setFactPrice(Optional.ofNullable(this.factPrice).orElse(purchase.getFactPrice()));
         newPurchase.setStatus(Optional.ofNullable(this.status).orElse(purchase.getStatus()));
-        return purchase;
+        return newPurchase;
     }
 
 }

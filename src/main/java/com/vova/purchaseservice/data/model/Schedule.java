@@ -25,7 +25,7 @@ public class Schedule {
     private Date lastPurchase;
 
     @ManyToOne
-    @JoinColumn(name = "id_user", referencedColumnName = "id_user")
+    @JoinColumn(name = "id_user", referencedColumnName = "id_user", nullable = false, updatable = false)
     public User getUser() {
         return user;
     }
@@ -107,7 +107,7 @@ public class Schedule {
 
 
     @Basic
-    @Column(name = "start_date", nullable = false, insertable = false)
+    @Column(name = "start_date", nullable = false)
     public Date getStartDate() {
         return startDate;
     }
@@ -134,5 +134,22 @@ public class Schedule {
 
     public void setLastPurchase(Date lastPurchase) {
         this.lastPurchase = lastPurchase;
+    }
+
+    @Override
+    public String toString() {
+        return "Schedule{" +
+                "user=" + user +
+                ", idSchedule=" + idSchedule +
+                ", created=" + created +
+                ", name='" + name + '\'' +
+                ", comment='" + comment + '\'' +
+                ", planPrice=" + planPrice +
+                ", period=" + period +
+                ", startDate=" + startDate +
+                ", status=" + status +
+                ", count=" + count +
+                ", lastPurchase=" + lastPurchase +
+                '}';
     }
 }

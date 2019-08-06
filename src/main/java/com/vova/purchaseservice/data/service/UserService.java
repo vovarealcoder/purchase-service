@@ -10,25 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
-    private final PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     private UserRepository userRepository;
-
-    @Autowired
-    public UserService(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public static String getLoginFromSecurityContext() {
         SecurityContext context = Optional.ofNullable(SecurityContextHolder.getContext())
@@ -38,18 +30,6 @@ public class UserService implements UserDetailsService {
         DbUserPrincipal authorization = (DbUserPrincipal) Optional.ofNullable(authentication.getPrincipal())
                 .orElseThrow(NotAuthorizedException::new);
         return authorization.getUsername();
-    }
-
-    @Autowired
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByLogin(username)
-                .orElseThrow(() -> new UsernameNotFoundException(username));
-        return new DbUserPrincipal(user);
     }
 
     public User registerUser(String login, String password, String name) {
@@ -78,4 +58,14 @@ public class UserService implements UserDetailsService {
         return userRepository.findByLogin(login).orElseThrow(() -> new UserNotFoundException(login));
     }
 
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 }

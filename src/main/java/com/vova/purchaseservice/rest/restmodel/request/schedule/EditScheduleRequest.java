@@ -82,6 +82,19 @@ public class EditScheduleRequest {
         this.count = count;
     }
 
+    @Override
+    public String toString() {
+        return "EditScheduleRequest{" +
+                "period=" + period +
+                ", startDate=" + startDate +
+                ", status=" + status +
+                ", name='" + name + '\'' +
+                ", comment='" + comment + '\'' +
+                ", planPrice=" + planPrice +
+                ", count=" + count +
+                '}';
+    }
+
     public Schedule applyChanges(Schedule schedule) {
         Schedule newSchedule = new Schedule();
         newSchedule.setPeriod(Optional.ofNullable(this.period).orElse(schedule.getPeriod()));
@@ -91,6 +104,6 @@ public class EditScheduleRequest {
         newSchedule.setCount(Optional.ofNullable(this.count).orElse(schedule.getCount()));
         newSchedule.setStatus(Optional.ofNullable(this.status).orElse(schedule.getStatus()));
         newSchedule.setPlanPrice(Optional.ofNullable(this.planPrice).orElse(schedule.getPlanPrice()));
-        return schedule;
+        return newSchedule;
     }
 }

@@ -27,6 +27,37 @@ public class PurchaseController {
     private UserService userService;
 
 
+    @GetMapping("/{id}")
+    public PurchaseItem getPurchase(@NotNull(message = "{validation.id-purchase.nullable}")
+                                        @PathVariable("id") int purchaseId) {
+        String login = UserService.getLoginFromSecurityContext();
+        Purchase purchase = purchaseService.getPurchaseByIdAndLogin(purchaseId, login);
+        return PurchaseItem.fromDbPurchase(purchase);
+    }
+
+
+    @PostMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public PurchaseItem editPurchase(@NotNull(message = "{validation.id-purchase.nullable}")
+                                     @PathVariable("id") int purchaseId,
+                                     @Valid EditPurchaseRequest request) {
+        String login = UserService.getLoginFromSecurityContext();
+        Purchase originalPurchase = purchaseService.getPurchaseByIdAndLogin(purchaseId, login);
+        Purchase purchase = request.applyChanges(originalPurchase);
+        purchase.setIdPurchase(purchaseId);
+        Purchase changedPurchase = purchaseService.edit(purchase);
+        return PurchaseItem.fromDbPurchase(changedPurchase);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Integer> deletePurchase(@NotNull(message = "{validation.id-purchase.nullable}")
+                                               @PathVariable("id") int purchaseId) {
+        purchaseService.deletePurchase(purchaseId, UserService.getLoginFromSecurityContext());
+        return Collections.singletonMap("deleted", purchaseId);
+    }
+
+
     @GetMapping("/list")
     public Page<PurchaseItem> getPurchases(@NotNull final Pageable pageable) {
         String userLogin = UserService.getLoginFromSecurityContext();
@@ -49,26 +80,6 @@ public class PurchaseController {
         User user = userService.getUserByLogin(UserService.getLoginFromSecurityContext());
         purchase.setUser(user);
         return PurchaseItem.fromDbPurchase(purchaseService.create(purchase));
-    }
-
-    @PostMapping("/{id}/edit")
-    @ResponseStatus(HttpStatus.OK)
-    public PurchaseItem editPurchase(@NotNull(message = "{validation.id-purchase.nullable}")
-                                     @PathVariable("id") int purchaseId,
-                                     @Valid EditPurchaseRequest request) {
-        String login = UserService.getLoginFromSecurityContext();
-        Purchase originalPurchase = purchaseService.getPurchaseByIdAndLogin(purchaseId, login);
-        Purchase purchase = request.applyChanges(originalPurchase);
-        Purchase changedPurchase = purchaseService.edit(purchase);
-        return PurchaseItem.fromDbPurchase(changedPurchase);
-    }
-
-    @DeleteMapping("/{id}/delete")
-    @ResponseStatus(HttpStatus.OK)
-    public Map<String, Integer> deletePurchase(@NotNull(message = "{validation.id-purchase.nullable}")
-                                               @PathVariable("id") int purchaseId) {
-        purchaseService.deletePurchase(purchaseId, UserService.getLoginFromSecurityContext());
-        return Collections.singletonMap("deleted", purchaseId);
     }
 
 

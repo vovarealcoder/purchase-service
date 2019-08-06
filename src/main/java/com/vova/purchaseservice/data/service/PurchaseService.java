@@ -45,7 +45,7 @@ public class PurchaseService {
     public void deletePurchase(int idPurchase, String login) {
         Purchase purchase = purchaseRepository.getByUser_LoginAndIdPurchase(login, idPurchase)
                 .orElseThrow(() -> new PurchaseNotFoundException(idPurchase, login));
-        purchaseRepository.delete(purchase);
+        purchaseRepository.deleteById(purchase.getIdPurchase());
     }
 
     @Autowired

@@ -1,5 +1,6 @@
 package com.vova.purchaseservice.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -21,6 +22,7 @@ public class I18NConfig implements WebMvcConfigurer {
     }
 
     @Bean
+    @Qualifier("purchaseMessageSource")
     public ResourceBundleMessageSource messageSource() {
         ResourceBundleMessageSource rs = new ResourceBundleMessageSource();
         rs.setBasename("messages");

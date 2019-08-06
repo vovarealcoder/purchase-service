@@ -29,42 +29,53 @@ public class ScheduleController {
     @GetMapping("/list")
     public Page<ScheduleItem> getSchedules(@NotNull final Pageable pageable) {
         String userLogin = UserService.getLoginFromSecurityContext();
-        Page<Schedule> purchases = scheduleService.getSchedules(pageable, userLogin);
-        return ScheduleItem.convertPagable(purchases);
+        Page<Schedule> schedules = scheduleService.getSchedules(pageable, userLogin);
+        return ScheduleItem.convertPagable(schedules);
     }
 
     @PutMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public ScheduleItem createSchedule(@Valid CreateScheduleRequest request) {
-        Schedule purchase = request.toDbScheduled();
-        purchase.setStatus(ScheduleStatus.ENABLED);
+        Schedule schedule = request.toDbScheduled();
+        schedule.setStatus(ScheduleStatus.ENABLED);
         User user = userService.getUserByLogin(UserService.getLoginFromSecurityContext());
-        purchase.setUser(user);
-        return ScheduleItem.fromDbSchedule(scheduleService.create(purchase));
+        schedule.setUser(user);
+        Schedule created = scheduleService.create(schedule);
+        return ScheduleItem.fromDbSchedule(created);
     }
 
     @GetMapping("/filter")
     public Page<ScheduleItem> filter(@NotNull final Pageable pageable, @RequestParam Map<String, String> params) {
         String userLogin = UserService.getLoginFromSecurityContext();
-        Page<Schedule> purchases = scheduleService.filter(pageable, userLogin, params);
-        return ScheduleItem.convertPagable(purchases);
+        Page<Schedule> schedules = scheduleService.filter(pageable, userLogin, params);
+        return ScheduleItem.convertPagable(schedules);
     }
 
-    @PostMapping("/{id}/edit")
+    @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ScheduleItem editSchedule(@NotNull(message = "{validation.id-schedule.nullable}")
                                      @PathVariable("id") int scheduleId,
                                      @Valid EditScheduleRequest request) {
         String login = UserService.getLoginFromSecurityContext();
-        Schedule originalPurchase = scheduleService.getByIdAndLogin(scheduleId, login);
-        Schedule purchase = request.applyChanges(originalPurchase);
-        Schedule changedPurchase = scheduleService.change(purchase);
-        return ScheduleItem.fromDbSchedule(changedPurchase);
+        Schedule originalSchedule = scheduleService.getByIdAndLogin(scheduleId, login);
+        Schedule schedule = request.applyChanges(originalSchedule);
+        schedule.setIdSchedule(scheduleId);
+        Schedule changedSchedule = scheduleService.change(schedule);
+        return ScheduleItem.fromDbSchedule(changedSchedule);
     }
 
-    @DeleteMapping("/{id}/delete")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Map<String, Integer> deleteSchedule(@NotNull(message = "{validation.id-purchase.nullable}")
+    public ScheduleItem getSchedule(@NotNull(message = "{validation.id-schedule.nullable}")
+                                     @PathVariable("id") int scheduleId) {
+        String login = UserService.getLoginFromSecurityContext();
+        Schedule originalSchedule = scheduleService.getByIdAndLogin(scheduleId, login);
+        return ScheduleItem.fromDbSchedule(originalSchedule);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Integer> deleteSchedule(@NotNull(message = "{validation.id-schedule.nullable}")
                                                @PathVariable("id") int scheduleId) {
         scheduleService.deleteSchedule(scheduleId, UserService.getLoginFromSecurityContext());
         return Collections.singletonMap("deleted", scheduleId);

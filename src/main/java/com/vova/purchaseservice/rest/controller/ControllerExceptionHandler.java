@@ -1,7 +1,8 @@
 package com.vova.purchaseservice.rest.controller;
 
-import com.vova.purchaseservice.ex.InvalidCriteriaException;
+import com.vova.purchaseservice.ex.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -83,18 +84,53 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
 
     @Autowired
+    @Qualifier("purchaseMessageSource")
     public void setMessageSource(MessageSource messageSource) {
         this.messageSource = messageSource;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(InvalidCriteriaException.class)
-    public ResponseEntity<Object> handleConflict(InvalidCriteriaException ex, HttpServletRequest req) {
+    public ResponseEntity<Object> handleInvalidCriteria(InvalidCriteriaException ex, HttpServletRequest req) {
+        return makeResponse(req, ex, HttpStatus.BAD_REQUEST, "error.invalid-criteria");
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(NotAuthorizedException.class)
+    public ResponseEntity<Object> handleNotAuthorized(NotAuthorizedException ex, HttpServletRequest req) {
+        return makeResponse(req, ex, HttpStatus.UNAUTHORIZED, "error.unauthorized");
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(PurchaseNotFoundException.class)
+    public ResponseEntity<Object> handleNotAuthorizedpurchaseNotFound(PurchaseNotFoundException ex, HttpServletRequest req) {
+        return makeResponse(req, ex, HttpStatus.NOT_FOUND, "error.purchase.not-found");
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ScheduleNotFoundException.class)
+    public ResponseEntity<Object> handleScheduleNotFound(ScheduleNotFoundException ex, HttpServletRequest req) {
+        return makeResponse(req, ex, HttpStatus.NOT_FOUND, "error.schedule.not-found");
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Object> handleUserNotFound(UserNotFoundException ex, HttpServletRequest req) {
+        return makeResponse(req, ex, HttpStatus.UNAUTHORIZED, "error.user.not-found");
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(RegisterUserAlreadyExistsException.class)
+    public ResponseEntity<Object> handleUserExists(RegisterUserAlreadyExistsException ex, HttpServletRequest req) {
+        return makeResponse(req, ex, HttpStatus.BAD_REQUEST, "error.user-exists");
+    }
+
+    private ResponseEntity<Object> makeResponse(HttpServletRequest req, RuntimeException ex, HttpStatus unauthorized, String s) {
         Map<String, Object> bodyMap = new LinkedHashMap<>();
         bodyMap.put("timestamp", new Date());
-        bodyMap.put("status", HttpStatus.BAD_REQUEST.value());
-        List<String> errors = Collections.singletonList(messageSource.getMessage("error.invalid-criteria", new String[]{ex.getMessage()}, req.getLocale()));
+        bodyMap.put("status", unauthorized.value());
+        List<String> errors = Collections.singletonList(messageSource.getMessage(s, new String[]{ex.getMessage()}, req.getLocale()));
         bodyMap.put("errors", errors);
-        return new ResponseEntity<>(bodyMap, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(bodyMap, unauthorized);
     }
 }

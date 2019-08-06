@@ -1,15 +1,17 @@
 package com.vova.purchaseservice.config;
 
-import com.vova.purchaseservice.data.service.UserService;
-import com.vova.purchaseservice.security.BasicAuthorizer;
+import com.vova.purchaseservice.security.AuthorizationService;
+import com.vova.purchaseservice.security.BasicAuth;
+import com.vova.purchaseservice.security.LoginAttemptService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -34,8 +36,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    protected UserDetailsService userDetailsService() {
-        return new UserService(passwordEncoder());
+    protected AuthorizationService userDetailsService() {
+        return new AuthorizationService();
     }
 
     @Bean
@@ -44,8 +46,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public BasicAuthorizer basicAuthorizer() {
-        return new BasicAuthorizer();
+    public BasicAuth basicAuthorizer() {
+        return new BasicAuth();
+    }
+
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+    public LoginAttemptService attemptService() {
+        return new LoginAttemptService();
     }
 
 }

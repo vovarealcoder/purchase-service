@@ -68,4 +68,15 @@ public class User {
     public void setIdUser(Integer idUser) {
         this.idUser = idUser;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "idUser=" + idUser +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                ", name='" + name + '\'' +
+                ", regTime=" + regTime +
+                '}';
+    }
 }

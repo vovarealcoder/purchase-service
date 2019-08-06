@@ -23,8 +23,25 @@ public class Purchase {
     private PurchaseStatus status;
     private int count;
 
+    @Override
+    public String toString() {
+        return "Purchase{" +
+                "idPurchase=" + idPurchase +
+                ", user=" + user +
+                ", purchased=" + purchased +
+                ", planDate=" + planDate +
+                ", created=" + created +
+                ", name='" + name + '\'' +
+                ", comment='" + comment + '\'' +
+                ", planPrice=" + planPrice +
+                ", factPrice=" + factPrice +
+                ", status=" + status +
+                ", count=" + count +
+                '}';
+    }
+
     @ManyToOne
-    @JoinColumn(name = "id_user", referencedColumnName = "id_user")
+    @JoinColumn(name = "id_user", referencedColumnName = "id_user", nullable = false, updatable = false)
     public User getUser() {
         return user;
     }

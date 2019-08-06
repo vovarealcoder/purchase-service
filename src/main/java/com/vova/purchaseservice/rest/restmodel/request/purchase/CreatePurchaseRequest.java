@@ -72,4 +72,15 @@ public class CreatePurchaseRequest {
         purchase.setPlanDate(this.getPlanDate());
         return purchase;
     }
+
+    @Override
+    public String toString() {
+        return "CreatePurchaseRequest{" +
+                "planDate=" + planDate +
+                ", name='" + name + '\'' +
+                ", comment='" + comment + '\'' +
+                ", planPrice=" + planPrice +
+                ", count=" + count +
+                '}';
+    }
 }

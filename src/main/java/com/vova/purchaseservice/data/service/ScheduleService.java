@@ -9,7 +9,9 @@ import com.vova.purchaseservice.data.model.Schedule;
 import com.vova.purchaseservice.data.model.User;
 import com.vova.purchaseservice.data.model.enums.PurchaseStatus;
 import com.vova.purchaseservice.ex.PurchaseNotFoundException;
+import com.vova.purchaseservice.ex.ScheduleNotFoundException;
 import com.vova.purchaseservice.ex.UserNotFoundException;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,9 +23,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
+@Transactional
 public class ScheduleService {
+    private Logger logger = Logger.getLogger("scheduler-service");
     private ScheduleRepository scheduleRepository;
     private PurchaseRepository purchaseRepository;
     private UserRepository userRepository;
@@ -34,7 +40,7 @@ public class ScheduleService {
 
     public Schedule getByIdAndLogin(int idSchedule, String login) {
         return scheduleRepository.getScheduleByUser_LoginAndIdSchedule(login, idSchedule)
-                .orElseThrow(() -> new UserNotFoundException(login));
+                .orElseThrow(() -> new ScheduleNotFoundException(login, idSchedule));
     }
 
     public Schedule change(Schedule schedule) {
@@ -51,16 +57,18 @@ public class ScheduleService {
     }
 
     public void deleteSchedule(int idSchedule, String login) {
-        Schedule purchase = scheduleRepository.getScheduleByUser_LoginAndIdSchedule(login, idSchedule)
+        Schedule schedule = scheduleRepository.getScheduleByUser_LoginAndIdSchedule(login, idSchedule)
                 .orElseThrow(() -> new PurchaseNotFoundException(idSchedule, login));
-        scheduleRepository.delete(purchase);
+        scheduleRepository.deleteById(schedule.getIdSchedule());
     }
 
     @Transactional
     @Scheduled(fixedDelay = 60000L)
     public void schedulePurchases() {
+        logger.log(Level.INFO, "starting generate purchases...");
         scheduleRepository.streamAllSchedules().forEach(it -> {
-            Date lastPurchase = it.getLastPurchase();
+            logger.log(Level.FINE, "analizing schedule " + it);
+            Date lastPurchase = ObjectUtils.firstNonNull(it.getLastPurchase(), it.getStartDate());
             Date now = new Date();
             Date future;
             switch (it.getPeriod()) {
@@ -95,11 +103,13 @@ public class ScheduleService {
             purchase.setComment(schedule.getComment());
             purchase.setPlanPrice(schedule.getPlanPrice());
             purchase.setPlanDate(now);
+            purchase.setUser(schedule.getUser());
             purchase.setName(schedule.getName());
             purchase.setStatus(PurchaseStatus.NEW);
             purchaseRepository.save(purchase);
             schedule.setLastPurchase(now);
             scheduleRepository.save(schedule);
+            logger.log(Level.FINE, "created purchase " + purchase + " for schedule " + schedule);
         }
     }
 
