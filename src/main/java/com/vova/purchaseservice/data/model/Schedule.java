@@ -2,15 +2,13 @@ package com.vova.purchaseservice.data.model;
 
 import com.vova.purchaseservice.data.model.enums.Periodic;
 import com.vova.purchaseservice.data.model.enums.ScheduleStatus;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name = "schedule")
-@EntityListeners(AuditingEntityListener.class)
 public class Schedule {
     private User user;
     private int idSchedule;
@@ -45,8 +43,9 @@ public class Schedule {
         this.idSchedule = idSchedule;
     }
 
-    @CreatedDate
-    @Column(name = "created", nullable = false, insertable = false)
+    @CreationTimestamp
+    @Column(name = "created", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     public Date getCreated() {
         return created;
     }
@@ -56,7 +55,7 @@ public class Schedule {
     }
 
     @Basic
-    @Column(name = "name", nullable = false, length = -1)
+    @Column(name = "name", nullable = false, length = 150)
     public String getName() {
         return name;
     }
@@ -66,7 +65,7 @@ public class Schedule {
     }
 
     @Basic
-    @Column(name = "comment", length = -1)
+    @Column(name = "comment", columnDefinition = "TEXT")
     public String getComment() {
         return comment;
     }

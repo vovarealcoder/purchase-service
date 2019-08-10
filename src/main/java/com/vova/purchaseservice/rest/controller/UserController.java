@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @GetMapping(path = "/info", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public UserActionResponse edit() {
+    public UserActionResponse info() {
         User info = userService.info(UserService.getLoginFromSecurityContext());
         return new UserActionResponse(info.getIdUser(), info.getLogin(), info.getName(), info.getRegTime());
     }

@@ -1,15 +1,13 @@
 package com.vova.purchaseservice.data.model;
 
 import com.vova.purchaseservice.data.model.enums.PurchaseStatus;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name = "purchases")
-@EntityListeners(AuditingEntityListener.class)
 public class Purchase {
     private int idPurchase;
     private User user;
@@ -72,8 +70,9 @@ public class Purchase {
     }
 
     @Basic
-    @CreatedDate
-    @Column(name = "created", nullable = false, insertable = false, updatable = false)
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created", nullable = false, updatable = false)
     public Date getCreated() {
         return created;
     }
@@ -93,7 +92,7 @@ public class Purchase {
     }
 
     @Basic
-    @Column(name = "name", nullable = false, length = -1)
+    @Column(name = "name", nullable = false, length = 150)
     public String getName() {
         return name;
     }
@@ -103,7 +102,7 @@ public class Purchase {
     }
 
     @Basic
-    @Column(name = "comment", length = -1)
+    @Column(name = "comment", columnDefinition = "TEXT")
     public String getComment() {
         return comment;
     }

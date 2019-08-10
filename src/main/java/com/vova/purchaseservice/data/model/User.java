@@ -1,14 +1,12 @@
 package com.vova.purchaseservice.data.model;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name = "users")
-@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     private Integer idUser;
@@ -38,7 +36,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "name", nullable = false, length = -1)
+    @Column(name = "name", nullable = false, length = 200)
     public String getName() {
         return name;
     }
@@ -47,9 +45,9 @@ public class User {
         this.name = name;
     }
 
-    @CreatedDate
+    @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "regtime", nullable = false, insertable = false, updatable = false)
+    @Column(name = "regtime", nullable = false, updatable = false)
     public Date getRegTime() {
         return regTime;
     }
