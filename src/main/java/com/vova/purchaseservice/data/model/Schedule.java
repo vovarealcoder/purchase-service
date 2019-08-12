@@ -107,6 +107,7 @@ public class Schedule {
 
     @Basic
     @Column(name = "start_date", nullable = false)
+    @Temporal(TemporalType.DATE)
     public Date getStartDate() {
         return startDate;
     }
@@ -126,7 +127,8 @@ public class Schedule {
     }
 
     @Basic
-    @Column(name = "last_purchase", nullable = false, insertable = false)
+    @Column(name = "last_purchase")
+    @Temporal(TemporalType.DATE)
     public Date getLastPurchase() {
         return lastPurchase;
     }

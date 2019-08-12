@@ -60,7 +60,8 @@ public class Purchase {
     }
 
     @Basic
-    @Column(name = "purchased", nullable = false, insertable = false)
+    @Column(name = "purchased", insertable = false)
+    @Temporal(TemporalType.DATE)
     public Date getPurchased() {
         return purchased;
     }
@@ -82,7 +83,8 @@ public class Purchase {
     }
 
     @Basic
-    @Column(name = "plan_date", nullable = false, insertable = false)
+    @Column(name = "plan_date")
+    @Temporal(TemporalType.DATE)
     public Date getPlanDate() {
         return planDate;
     }
